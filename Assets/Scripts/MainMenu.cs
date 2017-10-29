@@ -14,13 +14,15 @@ public class MainMenu : MonoBehaviour
     public GameObject shopButtonPrefab;
     public GameObject shopButtonContainer;
     public Material playerMaterial;
+    public Text currencyText;
 
     private Transform cameraTransform;
     private Transform cameraDesiredLookAt;
 
     private void Start()
     {
-        ChangePlayerSkin(3);
+        ChangePlayerSkin(GameManager.Instance.currentSkinIndex);
+        currencyText.text = "Currency: " + GameManager.Instance.currency.ToString();
 
         cameraTransform = Camera.main.transform;
         Sprite[] thumbnails = Resources.LoadAll<Sprite>("Levels");
@@ -65,6 +67,11 @@ public class MainMenu : MonoBehaviour
 
     private void ChangePlayerSkin(int index)
     {
+        if ((GameManager.Instance.skinAvailability & 1 << index) == 1 << index)
+        {
+            Debug.Log(1 << index); 
+        }
+
         float x = (index % 4) * 0.25f; // modulus of 4 (how many rows) times 0.25f (division of sprites from image (ever 25% of the row) ) 
         float y = ((int) index / 4) * 0.25f; // now for columns
 
@@ -77,7 +84,11 @@ public class MainMenu : MonoBehaviour
         else if (y == 0.75f)
             y = 0f;
 
-        playerMaterial.SetTextureOffset("_MainTex", new Vector2(x, y));
+        playerMaterial.SetTextureOffset("_MainTex", new Vector2(x, y)); 
+
+        // Save current skin in registry
+        GameManager.Instance.currentSkinIndex = index;
+        GameManager.Instance.Save();
     }
 
     public void LookAtMenu(Transform menuTransform)
