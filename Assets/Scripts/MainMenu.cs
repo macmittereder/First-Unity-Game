@@ -20,7 +20,7 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
-        ChangePlayerSkin(10);
+        ChangePlayerSkin(3);
 
         cameraTransform = Camera.main.transform;
         Sprite[] thumbnails = Resources.LoadAll<Sprite>("Levels");
@@ -34,12 +34,17 @@ public class MainMenu : MonoBehaviour
             levelButton.GetComponent<Button>().onClick.AddListener(() => LoadLevel(sceneName));
         }
 
+        int textureIndex = 0;
         Sprite[] textures = Resources.LoadAll<Sprite>("Player");
         foreach(Sprite texture in textures)
         {
             GameObject textureButton = Instantiate(shopButtonPrefab) as GameObject;
             textureButton.GetComponent<Image>().sprite = texture;
             textureButton.transform.SetParent(shopButtonContainer.transform, false);
+
+            int index = textureIndex;
+            textureButton.GetComponent<Button>().onClick.AddListener(() => ChangePlayerSkin(index));
+            textureIndex++;
         }
     }
 
@@ -61,7 +66,16 @@ public class MainMenu : MonoBehaviour
     private void ChangePlayerSkin(int index)
     {
         float x = (index % 4) * 0.25f; // modulus of 4 (how many rows) times 0.25f (division of sprites from image (ever 25% of the row) ) 
-        float y = (index / 4) * 0.25f; // now for columns
+        float y = ((int) index / 4) * 0.25f; // now for columns
+
+        if (y == 0.0f)
+            y = 0.75f;
+        else if (y == 0.25f)
+            y = 0.5f;
+        else if (y == 0.50f)
+            y = 0.25f;
+        else if (y == 0.75f)
+            y = 0f;
 
         playerMaterial.SetTextureOffset("_MainTex", new Vector2(x, y));
     }
