@@ -9,8 +9,12 @@ public class MainMenu : MonoBehaviour
     public GameObject levelButtonPrefab;
     public GameObject levelButtonContainer;
 
+    private Transform cameraTransform;
+    private Transform cameraDesiredLookAt;
+
     private void Start()
     {
+        cameraTransform = Camera.main.transform;
         Sprite[] thumbnails = Resources.LoadAll<Sprite>("Levels");
         foreach(Sprite thumbnail in thumbnails)
         {
@@ -23,14 +27,23 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if(cameraDesiredLookAt != null)
+        {
+            // Adding rotation effect to camera in 3d space
+            cameraTransform.rotation = Quaternion.Slerp(cameraTransform.rotation, cameraDesiredLookAt.rotation, 3 * Time.deltaTime);
+        }
+    }
+
     private void LoadLevel(string sceneName)
     {
         Debug.Log(sceneName); // Debugging
         SceneManager.LoadScene(sceneName);
     }
 
-    public void LookAtMenu(string menu)
+    public void LookAtMenu(Transform menuTransform)
     {
-
+        cameraDesiredLookAt = menuTransform;
     }
 }
