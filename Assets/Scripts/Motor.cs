@@ -22,7 +22,7 @@ public class Motor : MonoBehaviour
         Vector3 dir = Vector3.zero;
 
         dir.x = Input.GetAxis("Horizontal");
-        dir.y = Input.getAxis("Vertical");
+        dir.z = Input.GetAxis("Vertical");
 
         if (dir.magnitude > 1)
             dir.Normalize();
