@@ -46,6 +46,12 @@ public class MainMenu : MonoBehaviour
 
             int index = textureIndex;
             textureButton.GetComponent<Button>().onClick.AddListener(() => ChangePlayerSkin(index));
+
+            if ((GameManager.Instance.skinAvailability & 1 << index) == 1 << index)
+            {
+                textureButton.transform.GetChild(0).gameObject.SetActive(false);
+            }
+
             textureIndex++;
         }
     }
@@ -69,26 +75,43 @@ public class MainMenu : MonoBehaviour
     {
         if ((GameManager.Instance.skinAvailability & 1 << index) == 1 << index)
         {
-            Debug.Log(1 << index); 
+            float x = (index % 4) * 0.25f; // modulus of 4 (how many rows) times 0.25f (division of sprites from image (ever 25% of the row) ) 
+            float y = ((int)index / 4) * 0.25f; // now for columns
+
+            if (y == 0.0f)
+                y = 0.75f;
+            else if (y == 0.25f)
+                y = 0.5f;
+            else if (y == 0.50f)
+                y = 0.25f;
+            else if (y == 0.75f)
+                y = 0f;
+
+            playerMaterial.SetTextureOffset("_MainTex", new Vector2(x, y));
+
+            // Save current skin in registry
+            GameManager.Instance.currentSkinIndex = index;
+            GameManager.Instance.Save();
         }
+        else
+        {
+            // You do not have the skin do you want to buy it
+            int cost = 0;
 
-        float x = (index % 4) * 0.25f; // modulus of 4 (how many rows) times 0.25f (division of sprites from image (ever 25% of the row) ) 
-        float y = ((int) index / 4) * 0.25f; // now for columns
+            if (GameManager.Instance.currency >= cost)
+            {
+                // Buy skin and remove overlay
+                GameManager.Instance.currency -= cost;
+                GameManager.Instance.skinAvailability += 1 << index;
+                GameManager.Instance.Save();
 
-        if (y == 0.0f)
-            y = 0.75f;
-        else if (y == 0.25f)
-            y = 0.5f;
-        else if (y == 0.50f)
-            y = 0.25f;
-        else if (y == 0.75f)
-            y = 0f;
-
-        playerMaterial.SetTextureOffset("_MainTex", new Vector2(x, y)); 
-
-        // Save current skin in registry
-        GameManager.Instance.currentSkinIndex = index;
-        GameManager.Instance.Save();
+                shopButtonContainer.transform.GetChild(index).GetChild(0).gameObject.SetActive(false);
+                // Update game currency on screen
+                currencyText.text = "Currency: " + GameManager.Instance.currency.ToString();
+                // Call function again to set the skin that you bought
+                ChangePlayerSkin(index);
+            }
+        }
     }
 
     public void LookAtMenu(Transform menuTransform)
